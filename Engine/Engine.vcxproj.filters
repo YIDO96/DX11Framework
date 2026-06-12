@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="소스 파일\99. Header">
+      <UniqueIdentifier>{0071a48f-6976-49bc-b641-4bc1fc5c91b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\00. Core">
+      <UniqueIdentifier>{58b05dce-c4bd-49ec-ae12-043a8c722e81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\01. RHI">
+      <UniqueIdentifier>{7604b36a-471d-4172-babf-c7f35e368a0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\98. ImGui">
+      <UniqueIdentifier>{67e28401-0848-4093-9d27-b4375e7b4cbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\10. Subsystems">
+      <UniqueIdentifier>{f47faa9c-0914-4b33-8658-7e207d4a2402}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\20. Gameplay">
+      <UniqueIdentifier>{cbbb330a-be37-4994-bb88-21063e442ef6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Core\Window.cpp">
+      <Filter>소스 파일\00. Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RHI\GraphicsRHI.cpp">
+      <Filter>소스 파일\01. RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Engine.cpp">
+      <Filter>소스 파일\00. Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\pch.cpp">
+      <Filter>소스 파일\99. Header</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\ImGui\imgui_demo.cpp">
+      <Filter>소스 파일\98. ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\ImGui\imgui_draw.cpp">
+      <Filter>소스 파일\98. ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\ImGui\imgui_impl_dx11.cpp">
+      <Filter>소스 파일\98. ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\ImGui\imgui_impl_win32.cpp">
+      <Filter>소스 파일\98. ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\ImGui\imgui_tables.cpp">
+      <Filter>소스 파일\98. ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\ImGui\imgui_widgets.cpp">
+      <Filter>소스 파일\98. ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\ImGui\imgui.cpp">
+      <Filter>소스 파일\98. ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Subsystems\TimeSubsystem.cpp">
+      <Filter>소스 파일\10. Subsystems</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Gameplay\Object.cpp">
+      <Filter>소스 파일\20. Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Gameplay\Actor.cpp">
+      <Filter>소스 파일\20. Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Gameplay\SceneComponent2D.cpp">
+      <Filter>소스 파일\20. Gameplay</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Core\Window.h">
+      <Filter>소스 파일\00. Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RHI\GraphicsRHI.h">
+      <Filter>소스 파일\01. RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Engine.h">
+      <Filter>소스 파일\00. Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\pch.h">
+      <Filter>소스 파일\99. Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\ImGui\imgui_impl_dx11.h">
+      <Filter>소스 파일\98. ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\ImGui\imgui_impl_win32.h">
+      <Filter>소스 파일\98. ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\ImGui\imgui.h">
+      <Filter>소스 파일\98. ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Subsystems\TimeSubsystem.h">
+      <Filter>소스 파일\10. Subsystems</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Gameplay\Object.h">
+      <Filter>소스 파일\20. Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Gameplay\Actor.h">
+      <Filter>소스 파일\20. Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Gameplay\SceneComponent2D.h">
+      <Filter>소스 파일\20. Gameplay</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
