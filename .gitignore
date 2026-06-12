@@ -1,0 +1,17 @@
+# Visual Studio 빌드 결과물 및 임시 파일
+별/Debug/
+별/Release/
+x64/
+x96/
+
+# Visual Studio 개인 설정 및 캐시 폴더
+.vs/
+
+# 빌드 중간 생성 파일들
+*.obj
+*.ilk
+*.pdb
+*.tlog
+*.idb
+*.ipch
+*.log
