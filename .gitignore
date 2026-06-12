@@ -1,0 +1,16 @@
+# Visual Studio 캐시 및 개인 설정
+.vs/
+
+# 빌드 결과물 및 intermediate 폴더 전체 제외
+**/x64/
+**/Debug/
+**/Release/
+
+# 특정 빌드 파일 확장자 제외
+*.obj
+*.ilk
+*.pdb
+*.tlog
+*.idb
+*.ipch
+*.log
