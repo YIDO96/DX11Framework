@@ -1,13 +1,12 @@
-# Visual Studio 빌드 결과물 및 임시 파일
-별/Debug/
-별/Release/
-x64/
-x96/
-
-# Visual Studio 개인 설정 및 캐시 폴더
+# Visual Studio 캐시 및 개인 설정
 .vs/
 
-# 빌드 중간 생성 파일들
+# 빌드 결과물 및 intermediate 폴더 전체 제외
+**/x64/
+**/Debug/
+**/Release/
+
+# 특정 빌드 파일 확장자 제외
 *.obj
 *.ilk
 *.pdb
