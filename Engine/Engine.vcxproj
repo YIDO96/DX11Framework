@@ -74,6 +74,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\RHI\GraphicsRHI.cpp" />
+    <ClCompile Include="Source\Subsystems\InputSubsystem.cpp" />
     <ClCompile Include="Source\Subsystems\TimeSubsystem.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -88,6 +89,7 @@
     <ClInclude Include="Source\Gameplay\TestMovingActor.h" />
     <ClInclude Include="Source\pch.h" />
     <ClInclude Include="Source\RHI\GraphicsRHI.h" />
+    <ClInclude Include="Source\Subsystems\InputSubsystem.h" />
     <ClInclude Include="Source\Subsystems\TimeSubsystem.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

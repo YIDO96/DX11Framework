@@ -7,6 +7,8 @@
 
 namespace Engine
 {
+	class UInputSubsystem;
+
 	// 월드에 소폰 가능한 액체. RootComponent(SceneComponent2D)를 소유
 	class AActor : public UObject
 	{
@@ -26,9 +28,9 @@ namespace Engine
 
 		USceneComponent2D* GetRootComponent() const { return _rootComponent.get(); }
 
-
-	private:
+		void SetInput(const UInputSubsystem* input) { _input = input; }
+	protected:
 		std::unique_ptr<USceneComponent2D> _rootComponent;
-
+		const UInputSubsystem* _input = nullptr;
 	};
 }

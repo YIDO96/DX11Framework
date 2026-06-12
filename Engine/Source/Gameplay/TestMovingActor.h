@@ -9,11 +9,12 @@ namespace Engine
 	class TestMovingActor : public AActor
 	{
 	public:
-		TestMovingActor() { _name = "TestMovingActor"; }
+		TestMovingActor() { _name = "PlayerSquare"; }
 
 		void Tick(float deltaTime) override;
 
 	private:
 		float _velocityX = 0.4f;
+		float _speed = 0.2f;
 	};
 }

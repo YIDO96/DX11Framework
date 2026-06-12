@@ -3,6 +3,7 @@
 #include "Core/Window.h"
 #include "RHI/GraphicsRHI.h"
 #include "Subsystems/TimeSubsystem.h"
+#include "Subsystems/InputSubsystem.h"
 #include "Gameplay/TestMovingActor.h"
 
 #include "imgui.h"
@@ -26,11 +27,16 @@ namespace Engine
             return false;
 
         _time = std::make_unique<TimeSubsystem>();
+        _input = std::make_unique<UInputSubsystem>();
+
 
         // 액터 생성 + 초기 위치 + BeginPlay
-        _testActor = std::make_unique<TestMovingActor>();
-        _testActor->SetPosition(0.0f, 0.0f);
-        _testActor->BeginPlay();
+        auto player = std::make_unique<TestMovingActor>();
+        player->SetPosition(0.0f, 0.0f);
+        player->SetInput(_input.get());
+        player->BeginPlay();
+        _player = std::move(player);
+
 
         _isRunning = true;
         return true;
@@ -52,15 +58,16 @@ namespace Engine
 
     void EngineApp::Tick()
     {
+        _input->Tick();
         // 시간 갱신
         _time->Tick();
         const float dt = _time->GetDeltaTime();
 
         // 액터의 Tick
-        _testActor->Tick(dt);
+        _player->Tick(dt);
 
         // 액터의 현재 위치를 렌더러에 전달
-        const DirectX::XMFLOAT2& pos = _testActor->GetPosition();
+        const DirectX::XMFLOAT2& pos = _player->GetPosition();
         _graphics->SetQuadPosition(pos.x, pos.y);
 
         //// 사각형 이동
@@ -81,9 +88,9 @@ namespace Engine
         {
             ImGui::Begin("Debug");
             ImGui::Text("DeckCrawler - Phase 1");
-            ImGui::Text("FPS : %.1f (#.3f ms/frame)", ImGui::GetIO().Framerate, 1000.f / ImGui::GetIO().Framerate);
+            ImGui::Text("FPS : %.1f (%.3f ms/frame)", ImGui::GetIO().Framerate, 1000.f / ImGui::GetIO().Framerate);
             ImGui::Separator();
-            ImGui::Text("Actor : %s", _testActor->GetName().c_str());
+            ImGui::Text("Actor : %s", _player->GetName().c_str());
             ImGui::Text("Position : (%.3f, %.3f)", pos.x, pos.y);
             ImGui::Text("DeltaTime : %.4f s", dt);
             ImGui::End();
@@ -105,6 +112,10 @@ namespace Engine
 
     void EngineApp::Shutdown()
     {
+        _player.reset();
+        _input.reset();
+        _time.reset();
+
         if (_graphics)
         {
             _graphics->Shutdown();

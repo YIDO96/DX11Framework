@@ -8,6 +8,7 @@ namespace Engine
     class Window;
     class GraphicsRHI;
     class TimeSubsystem;
+    class UInputSubsystem;
     class AActor;
 
     // 프레임 라이프사이클 총괄 구동 (Layer 1: Core)
@@ -30,6 +31,7 @@ namespace Engine
         std::unique_ptr<TimeSubsystem>  _time;
         bool _isRunning = false;
 
-        std::unique_ptr<AActor>         _testActor;
+        std::unique_ptr<UInputSubsystem> _input;
+        std::unique_ptr<AActor>          _player;
     };
 }
