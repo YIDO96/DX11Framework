@@ -74,6 +74,12 @@
     <ClCompile Include="Source\Gameplay\SceneComponent2D.cpp">
       <Filter>소스 파일\20. Gameplay</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Gameplay\TestMovingActor.cpp">
+      <Filter>소스 파일\20. Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Subsystems\InputSubsystem.cpp">
+      <Filter>소스 파일\10. Subsystems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\Window.h">
@@ -108,6 +114,12 @@
     </ClInclude>
     <ClInclude Include="Source\Gameplay\SceneComponent2D.h">
       <Filter>소스 파일\20. Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Gameplay\TestMovingActor.h">
+      <Filter>소스 파일\20. Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Subsystems\InputSubsystem.h">
+      <Filter>소스 파일\10. Subsystems</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

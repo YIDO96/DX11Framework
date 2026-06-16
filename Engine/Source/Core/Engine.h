@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <Windows.h>
 #include <memory>
@@ -8,8 +8,10 @@ namespace Engine
     class Window;
     class GraphicsRHI;
     class TimeSubsystem;
+    class UInputSubsystem;
+    class AActor;
 
-    // ÇÁ·¹ÀÓ ¶óÀÌÇÁ»çÀÌÅ¬ ÃÑ°ı ±¸µ¿ (Layer 1: Core)
+    // í”„ë ˆì„ ë¼ì´í”„ì‚¬ì´í´ ì´ê´„ êµ¬ë™ (Layer 1: Core)
     class EngineApp
     {
     public:
@@ -29,7 +31,7 @@ namespace Engine
         std::unique_ptr<TimeSubsystem>  _time;
         bool _isRunning = false;
 
-        float _quadX = 0.f;
-        float _quadVelX = 0.4f;
+        std::unique_ptr<UInputSubsystem> _input;
+        std::unique_ptr<AActor>          _player;
     };
 }
