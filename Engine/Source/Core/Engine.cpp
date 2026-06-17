@@ -104,7 +104,7 @@ namespace Engine
         _graphics->BeginFrame(0.1f, 0.2f, 0.4f, 1.0f);   // 짙은 파랑으로 클리어
         // 이후 Phase에서 이 사이에 렌더링 로직이 들어감
         //_graphics->DrawTestTriangle();                 // 2) 그 위에 삼각형을 그린 뒤
-        _graphics->DrawTestQUad();
+        _graphics->DrawTestQuad();
 
         _graphics->RenderImGui();
         _graphics->EndFrame();

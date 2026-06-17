@@ -369,6 +369,20 @@ namespace Engine
         if (FAILED(_device->CreateSamplerState(&sd, _samplerState.GetAddressOf())))
             return false;
 
+        // BlendState 생성
+        D3D11_BLEND_DESC bd2 = {};
+        bd2.RenderTarget[0].BlendEnable             = TRUE;
+        bd2.RenderTarget[0].SrcBlend                = D3D11_BLEND_SRC_ALPHA;            // 새 픽셀 x 알파
+        bd2.RenderTarget[0].DestBlend               = D3D11_BLEND_INV_SRC_ALPHA;        // 배경 x (1 - 알파)
+        bd2.RenderTarget[0].BlendOp                 = D3D11_BLEND_OP_ADD;               // 둘을 더함
+        bd2.RenderTarget[0].SrcBlendAlpha           = D3D11_BLEND_ONE;
+        bd2.RenderTarget[0].DestBlendAlpha          = D3D11_BLEND_ZERO;
+        bd2.RenderTarget[0].BlendOpAlpha            = D3D11_BLEND_OP_ADD;
+        bd2.RenderTarget[0].RenderTargetWriteMask   = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+        if (FAILED(_device->CreateBlendState(&bd2, _blendState.GetAddressOf())))
+            return false;
+
         return true;
     }
 
@@ -446,6 +460,10 @@ namespace Engine
         _pixelShader.Reset();
         _vertexShader.Reset();
 
+        _blendState.Reset();
+        _samplerState.Reset();
+        _textureSRV.Reset();
+
         _renderTargetView.Reset();
         _swapChain.Reset();
         _context.Reset();
@@ -485,7 +503,7 @@ namespace Engine
     {
         _quadPos = { x, y };
     }
-    void GraphicsRHI::DrawTestQUad()
+    void GraphicsRHI::DrawTestQuad()
     {
         // 현재 위치로 월드 행렬 만들기
         // 행렬은 셰이더에서 row-majon로 곱하기에 Transpose해서 보낸다.
@@ -519,6 +537,10 @@ namespace Engine
         // 텍스처와 샘플러를 픽셀 셰이더에 바인딩
         _context->PSSetShaderResources(0, 1, _textureSRV.GetAddressOf());
         _context->PSSetSamplers(0, 1, _samplerState.GetAddressOf());
+
+        // 블렌드 스테이트 적용
+        const float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+        _context->OMSetBlendState(_blendState.Get(), blendFactor, 0xffffffff);
 
 
         TransformCB* cb = reinterpret_cast<TransformCB*>(mapped.pData);

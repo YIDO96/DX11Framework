@@ -21,7 +21,7 @@ namespace Engine
         // 백버퍼를 렌더 타겟으로 묶고 지정 색으로 클리어
         void BeginFrame(float r, float g, float b, float a);        // 화면 클리어
         void DrawTestTriangle();                                    // 삼각형 그리기
-        void DrawTestQUad();                                        // 사각형 그리기
+        void DrawTestQuad();                                        // 사각형 그리기
         void RenderImGui();                                         // ImGui 그리기 EndFrame() 직전에 호출
         // 백버퍼를 화면에 제출 
         void EndFrame();                                            // 화면에 제출 (Present)
@@ -66,8 +66,11 @@ namespace Engine
         DirectX::XMFLOAT2                   _quadPos = { 0.0f, 0.0f };
 
         // 텍스처 관련
-        ComPtr<ID3D11ShaderResourceView>    _textureSRV;       // GPU가 읽을 텍스처
+        ComPtr<ID3D11ShaderResourceView>    _textureSRV;        // GPU가 읽을 텍스처
         ComPtr<ID3D11SamplerState>          _samplerState;      // 텍스터 읽는 방식
+
+        // 알파 블렌딩
+        ComPtr<ID3D11BlendState>            _blendState;        // 
 
 
         bool _imguiInitialized = false;                     // 종료 시 정리 여부 판단용
