@@ -80,6 +80,12 @@
     <ClCompile Include="Source\Subsystems\InputSubsystem.cpp">
       <Filter>소스 파일\10. Subsystems</Filter>
     </ClCompile>
+    <ClCompile Include="Source\RHI\Texture.cpp">
+      <Filter>소스 파일\01. RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Gameplay\SpriteComponent.cpp">
+      <Filter>소스 파일\20. Gameplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\Window.h">
@@ -120,6 +126,12 @@
     </ClInclude>
     <ClInclude Include="Source\Subsystems\InputSubsystem.h">
       <Filter>소스 파일\10. Subsystems</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RHI\Texture.h">
+      <Filter>소스 파일\01. RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Gameplay\SpriteComponent.h">
+      <Filter>소스 파일\20. Gameplay</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

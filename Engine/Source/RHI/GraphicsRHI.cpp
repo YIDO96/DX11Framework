@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "RHI/GraphicsRHI.h"
+#include "Texture.h"
 
 #include <d3dcompiler.h>   // 런타임 셰이더 컴파일(D3DCompile)
 #include <DirectXTex.h>
@@ -29,8 +30,8 @@ namespace
 
     struct TransformCB
     {
-        XMMATRIX world;
-        //XMFLOAT4X4 world;         // 월드 행렬
+        //XMMATRIX world;
+        XMFLOAT4X4 world;         // 월드 행렬
     };
 
     // GPU에서 돌 셰이더 프로그램. HLSL 텍스트를 그대로 문자열로 들고 있다가
@@ -203,69 +204,12 @@ namespace Engine
         if (!CreateQuadResources())
             return false;
 
-        // 텍스처 로딩
-        if (!LoadTexture(L"Assets/dog.png"))
-            return false;
+        // 텍스처 로딩 -> 외부에서 Texture를 만들어 DrawSprite로 넘김
+        // if (!LoadTexture(L"Assets/dog.png"))
+        //    return false;
 
         // DX11 준비가 완료가 된 이후에 ImGui 초기화
         if (!InitImGui(hWnd))
-            return false;
-
-        return true;
-    }
-
-    // ─────────────────────────────────────────────
-    // ③ 삼각형용 리소스 4종 생성: 셰이더 → 셰이더객체 → 레이아웃 → 정점버퍼
-    // ─────────────────────────────────────────────
-    bool GraphicsRHI::CreateTriangleResources()
-    {
-        // (1) HLSL을 컴파일 → 바이트코드(Blob) 획득
-        ComPtr<ID3DBlob> vsBlob, psBlob;
-        if (FAILED(CompileShaderFromString(kShaderSource, "VSMain", "vs_5_0", vsBlob.GetAddressOf())))
-            return false;
-        if (FAILED(CompileShaderFromString(kShaderSource, "PSMain", "ps_5_0", psBlob.GetAddressOf())))
-            return false;
-
-        // (2) 바이트코드로 실제 셰이더 객체 생성
-        if (FAILED(_device->CreateVertexShader(
-            vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, _vertexShader.GetAddressOf())))
-            return false;
-        if (FAILED(_device->CreatePixelShader(
-            psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, _pixelShader.GetAddressOf())))
-            return false;
-
-        // (3) 인풋 레이아웃: 정점 버퍼의 바이트를 셰이더 입력으로 어떻게 해석할지 명세
-        //     - "POSITION": 0번 바이트부터 float 3개
-        //     - "COLOR"   : 12번 바이트부터 float 4개
-        const D3D11_INPUT_ELEMENT_DESC layout[] =
-        {
-            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        };
-        // 인풋 레이아웃은 VS 바이트코드와 대조 검증되므로 vsBlob이 필요하다
-        if (FAILED(_device->CreateInputLayout(
-            layout, _countof(layout),
-            vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(),
-            _inputLayout.GetAddressOf())))
-            return false;
-
-        // (4) 정점 버퍼: 삼각형 세 꼭짓점. 좌표는 NDC(화면 -1~+1, 중앙이 원점, 위가 +Y)
-        const Vertex vertices[] =
-        {
-            { {  0.0f,  0.5f, 0.0f }, { 1.0f, 0.0f} }, // 꼭대기  - 빨강
-            { {  0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f} }, // 우하단  - 초록
-            { { -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f} }, // 좌하단  - 파랑
-        };
-
-        D3D11_BUFFER_DESC bd = {};
-        bd.Usage = D3D11_USAGE_DEFAULT;
-        bd.ByteWidth = sizeof(vertices);
-        bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-        D3D11_SUBRESOURCE_DATA initData = {};
-        initData.pSysMem = vertices;
-
-        if (FAILED(_device->CreateBuffer(&bd, &initData, _vertexBuffer.GetAddressOf())))
             return false;
 
         return true;
@@ -409,35 +353,6 @@ namespace Engine
         return true;
     }
 
-    // ─────────────────────────────────────────────
-    // DirectXTex로 PNG 로딩 → ShaderResourceView 생성
-    // ─────────────────────────────────────────────
-    bool GraphicsRHI::LoadTexture(const std::wstring& path)
-    {
-        ScratchImage image;
-
-        // WIC (Windows Imanging Component)로 PNG/JPG등 디코딩
-        HRESULT hr = LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, nullptr, image);
-        if (FAILED(hr))
-        {
-            OutputDebugStringA("Texture load FAILED: check Assets/dog.png paht\n");
-            return false;
-        }
-
-        // 디코딩된 이미지로 SRV 생성
-        hr = CreateShaderResourceView(
-            _device.Get(),
-            image.GetImages(),
-            image.GetImageCount(),
-            image.GetMetadata(),
-            _textureSRV.GetAddressOf());
-
-        if (FAILED(hr))
-            return false;
-
-
-        return true;
-    }
 
     void GraphicsRHI::Shutdown()
     {
@@ -462,7 +377,6 @@ namespace Engine
 
         _blendState.Reset();
         _samplerState.Reset();
-        _textureSRV.Reset();
 
         _renderTargetView.Reset();
         _swapChain.Reset();
@@ -479,76 +393,6 @@ namespace Engine
         _context->ClearRenderTargetView(_renderTargetView.Get(), color);
     }
 
-    // ─────────────────────────────────────────────
-    // ④ 매 프레임: 만들어둔 리소스를 GPU에 "장착"하고 그리기 명령
-    // ─────────────────────────────────────────────
-    void GraphicsRHI::DrawTestTriangle()
-    {
-        UINT stride = sizeof(Vertex);   // 정점 1개 크기(28바이트)
-        UINT offset = 0;
-
-        // IA(Input Assembler) 단계: 무엇을, 어떤 형식으로, 어떻게 묶어 읽을지
-        _context->IASetInputLayout(_inputLayout.Get());
-        _context->IASetVertexBuffers(0, 1, _vertexBuffer.GetAddressOf(), &stride, &offset);
-        _context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점 3개 = 삼각형
-
-        // 셰이더 단계: 어떤 VS/PS로 처리할지
-        _context->VSSetShader(_vertexShader.Get(), nullptr, 0);
-        _context->PSSetShader(_pixelShader.Get(), nullptr, 0);
-
-        // 그려라! (정점 3개를 0번부터)
-        _context->Draw(3, 0);
-    }
-    void GraphicsRHI::SetQuadPosition(float x, float y)
-    {
-        _quadPos = { x, y };
-    }
-    void GraphicsRHI::DrawTestQuad()
-    {
-        // 현재 위치로 월드 행렬 만들기
-        // 행렬은 셰이더에서 row-majon로 곱하기에 Transpose해서 보낸다.
-        XMMATRIX world = XMMatrixTranslation(_quadPos.x, _quadPos.y, 0.0f);
-
-        // 상수 버퍼에 행렬 써넣기
-        D3D11_MAPPED_SUBRESOURCE mapped{};
-        if (SUCCEEDED(_context->Map(_transformCB.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
-        {
-            TransformCB* cb = reinterpret_cast<TransformCB*>(mapped.pData);
-            cb->world = XMMatrixTranspose(world);
-            //XMStoreFloat4x4(&cb->world, XMMatrixTranspose(world));
-            _context->Unmap(_transformCB.Get(), 0);
-        }
-
-
-        UINT stride = sizeof(Vertex);
-        UINT offset = 0;
-
-        _context->IASetInputLayout(_inputLayout.Get());
-        _context->IASetVertexBuffers(0, 1, _vertexBuffer.GetAddressOf(), &stride, &offset);
-        // 인덱스 버퍼 장착 (UINT 인덱스이므로 R32_UINT)
-        _context->IASetIndexBuffer(_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-        _context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-        _context->VSSetShader(_vertexShader.Get(), nullptr, 0);
-        _context->VSSetConstantBuffers(0, 1, _transformCB.GetAddressOf());
-
-        _context->PSSetShader(_pixelShader.Get(), nullptr, 0);
-
-        // 텍스처와 샘플러를 픽셀 셰이더에 바인딩
-        _context->PSSetShaderResources(0, 1, _textureSRV.GetAddressOf());
-        _context->PSSetSamplers(0, 1, _samplerState.GetAddressOf());
-
-        // 블렌드 스테이트 적용
-        const float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-        _context->OMSetBlendState(_blendState.Get(), blendFactor, 0xffffffff);
-
-
-        TransformCB* cb = reinterpret_cast<TransformCB*>(mapped.pData);
-        cb->world = XMMatrixTranspose(world);
-        // Draw -> DrawIndexed 로 변경 (인덱스 6개를 0번부터)
-        _context->DrawIndexed(_indexCount, 0, 0);
-    }
-
     void GraphicsRHI::RenderImGui()
     {
         ImGui::Render();
@@ -559,5 +403,49 @@ namespace Engine
     {
         _swapChain->Present(1, 0);   // 1 = VSync ON
     }
-    
+
+    // ─────────────────────────────────────────────
+    // 일반화된 스프라이트 그리기
+    //   texture: 그릴 텍스처 / x,y: 위치 / scaleX,Y: 크기
+    // ─────────────────────────────────────────────
+    void GraphicsRHI::DrawSprite(const Texture* texture, float x, float y, float scaleX, float scaleY)
+    {
+        if (!texture || !texture->IsValid())
+            return;
+
+        // 스케일 -> 이동 순서로 월드 행렬 구성
+        XMMATRIX world = XMMatrixScaling(scaleX, scaleY, 1.0f) * XMMatrixTranslation(x, y, 0.f);
+
+        D3D11_MAPPED_SUBRESOURCE mapped{};
+        if (SUCCEEDED(_context->Map(_transformCB.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
+        {
+            TransformCB* cb = reinterpret_cast<TransformCB*>(mapped.pData);
+            XMStoreFloat4x4(&cb->world, XMMatrixTranspose(world));
+            _context->Unmap(_transformCB.Get(), 0);
+        }
+
+        UINT stride = sizeof(Vertex);
+        UINT offset = 0;
+
+        _context->IASetInputLayout(_inputLayout.Get());
+        _context->IASetVertexBuffers(0, 1, _vertexBuffer.GetAddressOf(), &stride, &offset);
+        _context->IASetIndexBuffer(_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+        _context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        _context->VSSetShader(_vertexShader.Get(), nullptr, 0);
+        _context->VSSetConstantBuffers(0, 1, _transformCB.GetAddressOf());
+
+        _context->PSSetShader(_pixelShader.Get(), nullptr, 0);
+
+        // 외부에서 받은 텍스처의 SRV를 바인딩
+        ID3D11ShaderResourceView* srv = texture->GetSRV();
+        _context->PSSetShaderResources(0, 1, &srv);
+        _context->PSSetSamplers(0, 1, _samplerState.GetAddressOf());
+
+        const float blendFactor[4] = { 0.f, 0.f, 0.f, 0.f };
+        _context->OMSetBlendState(_blendState.Get(), blendFactor, 0xffffffff);
+
+
+        _context->DrawIndexed(_indexCount, 0, 0);
+    }
 }

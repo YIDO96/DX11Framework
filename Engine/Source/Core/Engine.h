@@ -10,6 +10,7 @@ namespace Engine
     class TimeSubsystem;
     class UInputSubsystem;
     class AActor;
+    class Texture;
 
     // 프레임 라이프사이클 총괄 구동 (Layer 1: Core)
     class EngineApp
@@ -33,5 +34,6 @@ namespace Engine
 
         std::unique_ptr<UInputSubsystem> _input;
         std::unique_ptr<AActor>          _player;
+        std::unique_ptr<Texture>        _playerTexture;
     };
 }
