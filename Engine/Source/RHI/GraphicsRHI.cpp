@@ -2,8 +2,8 @@
 #include "RHI/GraphicsRHI.h"
 
 #include <d3dcompiler.h>   // 런타임 셰이더 컴파일(D3DCompile)
+#include <DirectXTex.h>
 #include <cstring>         // strlen
-
 
 // 이 파일에서만 쓰는 라이브러리를 사용처 근처에 둔다
 #pragma comment(lib, "d3d11.lib")
@@ -23,7 +23,8 @@ namespace
     struct Vertex
     {
         float position[3];   // x, y, z
-        float color[4];      // r, g, b, a
+        //float color[4];      // r, g, b, a
+        float uv[2];        // u, v (텍스처 좌표)
     };
 
     struct TransformCB
@@ -40,16 +41,19 @@ cbuffer TransformCB : register(b0)
     matrix world;
 };
 
+Texture2D       tex     : register(t0);     // 텍스처
+SamplerState    samp    : register(s0);     // 샘플러
+
 struct VS_INPUT
 {
     float3 position : POSITION;   // 인풋 레이아웃의 "POSITION"과 연결
-    float4 color    : COLOR;      // 인풋 레이아웃의 "COLOR"와 연결
+    float2 uv       : TEXCOORD;
 };
 
 struct VS_OUTPUT
 {
     float4 position : SV_POSITION; // 화면 좌표(필수 출력)
-    float4 color    : COLOR;       // 픽셀 셰이더로 넘길 색
+    float2 uv       : TEXCOORD;
 };
 
     // [Vertex Shader] 꼭짓점 하나하나에 대해 실행. 지금은 위치를 그대로 통과시킴
@@ -58,7 +62,7 @@ VS_OUTPUT VSMain(VS_INPUT input)
 {
     VS_OUTPUT output;
     output.position = mul(float4(input.position, 1.0f), world);
-    output.color    = input.color;
+    output.uv       = input.uv;
     return output;
 }
 
@@ -66,7 +70,7 @@ VS_OUTPUT VSMain(VS_INPUT input)
     // (세 꼭짓점 색이 자동으로 부드럽게 보간되어 무지개처럼 나온다)
 float4 PSMain(VS_OUTPUT input) : SV_TARGET
 {
-    return input.color;
+    return tex.Sample(samp, input.uv);
 }
 )";
 
@@ -199,6 +203,10 @@ namespace Engine
         if (!CreateQuadResources())
             return false;
 
+        // 텍스처 로딩
+        if (!LoadTexture(L"Assets/dog.png"))
+            return false;
+
         // DX11 준비가 완료가 된 이후에 ImGui 초기화
         if (!InitImGui(hWnd))
             return false;
@@ -244,9 +252,9 @@ namespace Engine
         // (4) 정점 버퍼: 삼각형 세 꼭짓점. 좌표는 NDC(화면 -1~+1, 중앙이 원점, 위가 +Y)
         const Vertex vertices[] =
         {
-            { {  0.0f,  0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } }, // 꼭대기  - 빨강
-            { {  0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } }, // 우하단  - 초록
-            { { -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }, // 좌하단  - 파랑
+            { {  0.0f,  0.5f, 0.0f }, { 1.0f, 0.0f} }, // 꼭대기  - 빨강
+            { {  0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f} }, // 우하단  - 초록
+            { { -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f} }, // 좌하단  - 파랑
         };
 
         D3D11_BUFFER_DESC bd = {};
@@ -286,8 +294,8 @@ namespace Engine
         // (3) 인풋 레이아웃 (삼각형 때와 동일)
         const D3D11_INPUT_ELEMENT_DESC layout[] =
         {
-            { "POSITION",   0, DXGI_FORMAT_R32G32B32_FLOAT,     0 ,  0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-            {   "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT,  0 , 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+            { "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0,   0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+            { "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0,  12, D3D11_INPUT_PER_VERTEX_DATA, 0},
         };
 
         if (FAILED(_device->CreateInputLayout(
@@ -295,22 +303,19 @@ namespace Engine
             _inputLayout.GetAddressOf())))
             return false;
 
-        // (4) 정점 버퍼 : 사각형의 네 모서리 (NDC 좌표, 각 모서리 다른 색)
-        //      0 - 1
-        //      |   |
-        //      2 - 3
+        // 정점: UV 지정 (좌상 0,0 / 우상 1,0 / 좌하 0,1 / 우하 1,1)
         const Vertex vertices[] =
         {
-            { {-0.5f,  0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f} },// 0 좌상 - 빨강
-            { { 0.5f,  0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f} },// 1 우상 - 초록
-            { {-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f} },// 2 좌하 - 파랑
-            { { 0.5f, -0.5f, 0.0f}, {1.0f, 1.0f, 0.0f, 1.0f} },// 3 좌하 - 노랑
+            { {-0.3f,  0.3f, 0.0f}, {0.0f, 0.0f} },// 0 좌상
+            { { 0.3f,  0.3f, 0.0f}, {1.0f, 0.0f} },// 1 우상
+            { {-0.3f, -0.3f, 0.0f}, {0.0f, 1.0f} },// 2 좌하
+            { { 0.3f, -0.3f, 0.0f}, {1.0f, 1.0f} },// 3 우하
         };
 
         D3D11_BUFFER_DESC vbd = {};
-        vbd.Usage       = D3D11_USAGE_DEFAULT;
-        vbd.ByteWidth   = sizeof(vertices);
-        vbd.BindFlags   = D3D11_BIND_VERTEX_BUFFER;
+        vbd.Usage           = D3D11_USAGE_DEFAULT;
+        vbd.ByteWidth       = sizeof(vertices);
+        vbd.BindFlags       = D3D11_BIND_VERTEX_BUFFER;
 
         D3D11_SUBRESOURCE_DATA vInit = {};
         vInit.pSysMem = vertices;
@@ -329,9 +334,9 @@ namespace Engine
         _indexCount = _countof(indices);        // 6
 
         D3D11_BUFFER_DESC ibd = {};
-        ibd.Usage       = D3D11_USAGE_DEFAULT;
-        ibd.ByteWidth   = sizeof(indices);
-        ibd.BindFlags   = D3D11_BIND_INDEX_BUFFER;        // 인덱스 용도로 표시
+        ibd.Usage           = D3D11_USAGE_DEFAULT;
+        ibd.ByteWidth       = sizeof(indices);
+        ibd.BindFlags       = D3D11_BIND_INDEX_BUFFER;        // 인덱스 용도로 표시
 
         D3D11_SUBRESOURCE_DATA iInit = {};
         iInit.pSysMem = indices;
@@ -339,17 +344,30 @@ namespace Engine
         if (FAILED(_device->CreateBuffer(&ibd, &iInit, _indexBuffer.GetAddressOf())))
             return false;
 
+
         // 상수 버퍼 생성
         D3D11_BUFFER_DESC cbd = {};
-        cbd.Usage = D3D11_USAGE_DYNAMIC;
-        cbd.ByteWidth = sizeof(TransformCB);
-        cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-        cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        cbd.Usage           = D3D11_USAGE_DYNAMIC;
+        cbd.ByteWidth       = sizeof(TransformCB);
+        cbd.BindFlags       = D3D11_BIND_CONSTANT_BUFFER;
+        cbd.CPUAccessFlags  = D3D11_CPU_ACCESS_WRITE;
 
         if (FAILED(_device->CreateBuffer(&cbd, nullptr, _transformCB.GetAddressOf())))
             return false;
 
 
+        // 샘플러 상태 생성 (텍스처를 어떻게 읽을지)
+        D3D11_SAMPLER_DESC sd = {};
+        sd.Filter           = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        sd.AddressU         = D3D11_TEXTURE_ADDRESS_CLAMP;
+        sd.AddressV         = D3D11_TEXTURE_ADDRESS_CLAMP;
+        sd.AddressW         = D3D11_TEXTURE_ADDRESS_CLAMP;
+        sd.ComparisonFunc   = D3D11_COMPARISON_NEVER;
+        sd.MinLOD           = 0;
+        sd.MaxLOD           = D3D11_FLOAT32_MAX;
+
+        if (FAILED(_device->CreateSamplerState(&sd, _samplerState.GetAddressOf())))
+            return false;
 
         return true;
     }
@@ -374,6 +392,36 @@ namespace Engine
 
 
         _imguiInitialized = true;
+        return true;
+    }
+
+    // ─────────────────────────────────────────────
+    // DirectXTex로 PNG 로딩 → ShaderResourceView 생성
+    // ─────────────────────────────────────────────
+    bool GraphicsRHI::LoadTexture(const std::wstring& path)
+    {
+        ScratchImage image;
+
+        // WIC (Windows Imanging Component)로 PNG/JPG등 디코딩
+        HRESULT hr = LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, nullptr, image);
+        if (FAILED(hr))
+        {
+            OutputDebugStringA("Texture load FAILED: check Assets/dog.png paht\n");
+            return false;
+        }
+
+        // 디코딩된 이미지로 SRV 생성
+        hr = CreateShaderResourceView(
+            _device.Get(),
+            image.GetImages(),
+            image.GetImageCount(),
+            image.GetMetadata(),
+            _textureSRV.GetAddressOf());
+
+        if (FAILED(hr))
+            return false;
+
+
         return true;
     }
 
@@ -465,7 +513,13 @@ namespace Engine
 
         _context->VSSetShader(_vertexShader.Get(), nullptr, 0);
         _context->VSSetConstantBuffers(0, 1, _transformCB.GetAddressOf());
+
         _context->PSSetShader(_pixelShader.Get(), nullptr, 0);
+
+        // 텍스처와 샘플러를 픽셀 셰이더에 바인딩
+        _context->PSSetShaderResources(0, 1, _textureSRV.GetAddressOf());
+        _context->PSSetSamplers(0, 1, _samplerState.GetAddressOf());
+
 
         TransformCB* cb = reinterpret_cast<TransformCB*>(mapped.pData);
         cb->world = XMMatrixTranspose(world);
