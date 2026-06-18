@@ -10,6 +10,7 @@ namespace Engine
 {
 	class UInputSubsystem;
 	class GraphicsRHI;
+	class GridSystem;
 
 	// 월드에 소폰 가능한 액체. RootComponent(SceneComponent2D)를 소유
 	class AActor : public UObject
@@ -25,7 +26,7 @@ namespace Engine
 		virtual void Tick(float deltaTime) { }
 
 		// 자신의 스프라이트를 렌더러에 제출
-		virtual void Render(GraphicsRHI* rhi);
+		virtual void Render(GraphicsRHI* rhi, const GridSystem* grid);
 
 
 

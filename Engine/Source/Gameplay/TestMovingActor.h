@@ -14,7 +14,6 @@ namespace Engine
 		void Tick(float deltaTime) override;
 
 	private:
-		float _velocityX = 0.4f;
-		float _speed = 0.2f;
+		float _speed = 5.f;				// 초당 5칸 이동 (격자 단위로 수정)
 	};
 }

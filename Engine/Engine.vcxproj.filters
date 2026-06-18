@@ -27,6 +27,9 @@
     <Filter Include="소스 파일\20. Gameplay">
       <UniqueIdentifier>{cbbb330a-be37-4994-bb88-21063e442ef6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\11. Grid">
+      <UniqueIdentifier>{25de1d76-e879-42d2-af1a-738ee4bd7915}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Core\Window.cpp">
@@ -86,6 +89,9 @@
     <ClCompile Include="Source\Gameplay\SpriteComponent.cpp">
       <Filter>소스 파일\20. Gameplay</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Grid\GridSystem.cpp">
+      <Filter>소스 파일\11. Grid</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\Window.h">
@@ -132,6 +138,9 @@
     </ClInclude>
     <ClInclude Include="Source\Gameplay\SpriteComponent.h">
       <Filter>소스 파일\20. Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Grid\GridSystem.h">
+      <Filter>소스 파일\11. Grid</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

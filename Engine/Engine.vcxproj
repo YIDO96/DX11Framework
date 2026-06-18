@@ -68,6 +68,7 @@
     <ClCompile Include="Source\Gameplay\SceneComponent2D.cpp" />
     <ClCompile Include="Source\Gameplay\SpriteComponent.cpp" />
     <ClCompile Include="Source\Gameplay\TestMovingActor.cpp" />
+    <ClCompile Include="Source\Grid\GridSystem.cpp" />
     <ClCompile Include="Source\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -90,6 +91,7 @@
     <ClInclude Include="Source\Gameplay\SceneComponent2D.h" />
     <ClInclude Include="Source\Gameplay\SpriteComponent.h" />
     <ClInclude Include="Source\Gameplay\TestMovingActor.h" />
+    <ClInclude Include="Source\Grid\GridSystem.h" />
     <ClInclude Include="Source\pch.h" />
     <ClInclude Include="Source\RHI\GraphicsRHI.h" />
     <ClInclude Include="Source\RHI\Texture.h" />

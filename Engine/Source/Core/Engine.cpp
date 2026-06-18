@@ -7,6 +7,7 @@
 #include "Subsystems/InputSubsystem.h"
 #include "Gameplay/TestMovingActor.h"
 #include "Gameplay/SpriteComponent.h"
+#include "Grid/GridSystem.h"
 
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
@@ -31,6 +32,10 @@ namespace Engine
         _time = std::make_unique<TimeSubsystem>();
         _input = std::make_unique<UInputSubsystem>();
 
+        // 격자 시스템(화면 크기 기준, 타일 32px, 20x20 맵)
+        _grid = std::make_unique<GridSystem>(
+                _window->GetWidth(), _window->GetHeight(), 32, 20, 20);
+
         // 텍스처 로딩
         _playerTexture = std::make_unique<Texture>();
         if (!_playerTexture->LoadFromFile(_graphics->GetDevice(), L"Assets/dog.png"))
@@ -38,7 +43,7 @@ namespace Engine
 
         // 액터 생성 + 초기 위치 + BeginPlay
         auto player = std::make_unique<TestMovingActor>();
-        player->SetPosition(0.0f, 0.0f);
+        player->SetPosition(10.0f, 10.0f);          // 격자 좌표로 수정 (맵 중앙 근처 위치)
         player->SetInput(_input.get());
         player->GetSprite()->SetTexture(_playerTexture.get());
         player->GetSprite()->SetSize(0.4f, 0.4f);
@@ -78,15 +83,6 @@ namespace Engine
         const DirectX::XMFLOAT2& pos = _player->GetPosition();
         // _graphics->SetQuadPosition(pos.x, pos.y);
 
-        //// 사각형 이동
-        //_quadX += _quadVelX * dt;
-        //
-        //// 화면 양끝에 도착하면 방향 반전 ->좌우 반복
-        //if (_quadX > 0.7f) { _quadX = 0.7f; _quadVelX = -_quadVelX; }
-        //if (_quadX < -0.7f) { _quadX = -0.7f; _quadVelX = -_quadVelX; }
-        //
-        //_graphics->SetQuadPosition(_quadX, 0.f);
-
         // 1) ImGui 새 프레임 시작 (입력 상태 갱신)
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
@@ -110,10 +106,7 @@ namespace Engine
 
 
         _graphics->BeginFrame(0.1f, 0.2f, 0.4f, 1.0f);   // 짙은 파랑으로 클리어
-        // 이후 Phase에서 이 사이에 렌더링 로직이 들어감
-        //_graphics->DrawTestTriangle();                 // 2) 그 위에 삼각형을 그린 뒤
-        //_graphics->DrawTestQuad();
-        _player->Render(_graphics.get());
+        _player->Render(_graphics.get(), _grid.get());
         _graphics->RenderImGui();
         _graphics->EndFrame();
     }
